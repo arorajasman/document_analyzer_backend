@@ -4,6 +4,7 @@ from flask_app import app
 from flask_smorest import Api
 
 from resources.twilio_resource import twilio_blueprint
+from resources.transcribe import bp as transcribe_bp
 from resources.phone_call_resource import phone_call_blueprint
 
 # loading .env file
@@ -23,4 +24,5 @@ app.config["OPENAPI_SWAGGER_UI_URL"] = (
 
 api = Api(app)
 api.register_blueprint(twilio_blueprint)
+api.register_blueprint(transcribe_bp)
 api.register_blueprint(phone_call_blueprint)
