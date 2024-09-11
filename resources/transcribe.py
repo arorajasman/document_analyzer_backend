@@ -1,7 +1,6 @@
 from flask import Response, jsonify
 from flask.views import MethodView
 from flask_smorest import Blueprint
-from services import transcribe
 from services import faster_whisper_transcription
 
 
