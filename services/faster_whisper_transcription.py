@@ -4,14 +4,14 @@ from pyannote.audio import Pipeline
 
 model_size = "small"
 model = WhisperModel(model_size, device="cpu", compute_type="int8")
-diarization_pipeline = Pipeline.from_pretrained(
-    "pyannote/speaker-diarization-3.1",
-    use_auth_token=os.getenv("HUGGING_FACE_API_KEY"),
-)
+
 
 def generate_transcription(audio_file="audio_files/policy_conv.mp3"):
     try:
-
+        diarization_pipeline = Pipeline.from_pretrained(
+            "pyannote/speaker-diarization-3.1",
+            use_auth_token=os.getenv("HUGGING_FACE_API_KEY"),
+        )
         segments, info = model.transcribe(audio_file, beam_size=5)
 
         diarization = diarization_pipeline(audio_file)
@@ -28,12 +28,13 @@ def generate_transcription(audio_file="audio_files/policy_conv.mp3"):
                 (
                     speaker
                     for start, end, speaker in speaker_turns
-                    if start <= segment.start <= end or start <= segment.end <= end
+                    if start <= segment.start <= end
+                    or start <= segment.end <= end  # noqa
                 ),
                 "Unknown",
             )
 
-            result.append(f"{matching_speaker}: { segment.text.strip()}")
+            result.append(f"{matching_speaker}: {segment.text.strip()}")
 
         combined_text = " ".join(result)
 
