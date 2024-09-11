@@ -11,4 +11,12 @@ Remember to first identify the language the input text is written in, and then m
 Your output should be as follows:
 **Detected language:** [Input language]
 """,  # noqa
+    "summarization_prompt": """  
+Summarize the given conversation between sales representative and the customer about a life 
+insurance policies. Capture all the key points and return the requirement of the customer. 
+
+DO NOT MISS ANY KEY POINTS.
+
+<conversion> {conversion} </conversion>
+""",
 }

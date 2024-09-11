@@ -15,6 +15,7 @@ from schemas.recording_summary_schema import (
     Summary,
 )
 from utils.app_constants import app_strings
+from services import faster_whisper_transcription
 
 
 phone_call_blueprint = Blueprint(
@@ -50,7 +51,10 @@ class CallSummary(MethodView):
     def post(self, prompt_data):
         """Method to get the summary from the recording"""
 
+
         try:
+            transcribed_data = faster_whisper_transcription.generate_transcription() 
+
             client = OpenAI(api_key=os.getenv("OPEN_API_KEY"))
             response_data = client.chat.completions.create(
                 model="gpt-3.5-turbo",
@@ -61,7 +65,7 @@ class CallSummary(MethodView):
                         "content": [
                             {
                                 "type": "text",
-                                "text": app_strings["system_prompt_open_api"],
+                                "text": app_strings["summarization"],
                             }
                         ],
                     },
