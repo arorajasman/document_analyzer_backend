@@ -23,4 +23,4 @@ class CallTranscriptionSchema(Schema):
 class CallRecordingSchema(Schema):
     """Schema to get the file for transribing"""
 
-    file_url = fields.Str(required=True)
+    file_url = fields.Str()

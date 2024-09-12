@@ -55,8 +55,13 @@ class CallSummary(MethodView):
         """Method to get the summary from the recording"""
 
         try:
+            """################### FOR TESTING PURPOSE ###########"""
+            file_url = prompt_data["file_url"]
+            if not file_url:
+                file_url = "audio_files/policy_conv.mp3"
+            """####################################################"""
             transcription_data: dict = TranscribeSummary.generate_transcription(  # noqa
-                prompt_data["file_url"],
+                file_url,
             )  # noqa
             if "error" in transcription_data.keys():
                 return abort(
