@@ -6,6 +6,7 @@ from flask_smorest import Api
 from resources.twilio_resource import twilio_blueprint
 from resources.transcribe import bp as transcribe_bp
 from resources.phone_call_resource import phone_call_blueprint
+from resources.documents_resource import documents_blueprint
 from utils.app_config import get_app_config
 from services.database_service import DatabaseService
 
@@ -26,3 +27,4 @@ api = Api(app)
 api.register_blueprint(twilio_blueprint)
 api.register_blueprint(transcribe_bp)
 api.register_blueprint(phone_call_blueprint)
+api.register_blueprint(documents_blueprint)

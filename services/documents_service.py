@@ -1,6 +1,3 @@
-from os import listdir
-from os.path import isfile, join
-
 from utils.app_enums import DocType
 from typing import List
 import uuid
@@ -16,11 +13,11 @@ class DocumentsService:
         """Method to load the documents"""
 
         match type:
-            case DocType.type.PDF:
+            case DocType.PDF:
                 return self.load_pdf_docs(path, isLocal)
-            case DocType.type.DOCX:
+            case DocType.DOCX:
                 pass
-            case DocType.type.TXT:
+            case DocType.TXT:
                 pass
             case _:
                 raise ValueError("Invalid document type")
