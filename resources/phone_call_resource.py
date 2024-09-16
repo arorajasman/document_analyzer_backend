@@ -72,13 +72,16 @@ class CallSummary(MethodView):
                 transcription_data["transcript"]
             )  # noqa
 
-            keywords = TranscribeSummary.generate_keywords(summary)
+            # keywords = TranscribeSummary.generate_keywords(summary)
 
             return {
                 "recording_summary": summary,
-                "ranked_policies": [{
-                    "policy_name": keywords,
-                    "ranking": '2'
-                }]}, HTTPStatus.OK
+                "ranked_policies": [
+                    {
+                        "policy_name": "keywords",
+                        "ranking": "2",
+                    }
+                ],
+            }, HTTPStatus.OK
         except Exception as e:
             return abort(HTTPStatus.INTERNAL_SERVER_ERROR, message=str(e))

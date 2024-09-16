@@ -31,7 +31,7 @@ class TranscribeSummary:
                     "content": [
                         {
                             "type": "text",
-                            "text": AppUtils.get_system_prompt_text(
+                            "text": AppUtils.get_prompt_text(
                                 app_strings["summarization_prompt"],
                                 conversation=prompt_data,
                             ),
@@ -53,7 +53,7 @@ class TranscribeSummary:
                     "content": [
                         {
                             "type": "text",
-                            "text": AppUtils.get_system_prompt_text(
+                            "text": AppUtils.get_prompt_text(
                                 app_strings["generate_requirements_prompt"],
                                 summary=summary,
                             ),
