@@ -8,7 +8,7 @@ from resources.transcribe import bp as transcribe_bp
 from resources.phone_call_resource import phone_call_blueprint
 from resources.documents_resource import documents_blueprint
 from utils.app_config import get_app_config
-from services.database_service import DatabaseService
+from services.vectorstore_service import VectorStoreService
 
 # loading .env file
 load_dotenv()
@@ -18,7 +18,7 @@ CORS(app)
 
 
 # database initialization
-database_service = DatabaseService()
+database_service = VectorStoreService()
 
 # getting app config
 config = get_app_config(app, database_service)

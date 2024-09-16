@@ -6,7 +6,7 @@ from langchain_postgres import PGVector
 from langchain_core.documents import Document
 
 
-class DatabaseService:
+class VectorStoreService:
     """Service to connect with the database"""
 
     # instance to get access to vector store

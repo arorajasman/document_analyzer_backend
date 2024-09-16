@@ -1,9 +1,9 @@
 from flask import Flask
 
-from services.database_service import DatabaseService
+from services.vectorstore_service import VectorStoreService
 
 
-def get_app_config(app: Flask, database_service: DatabaseService):
+def get_app_config(app: Flask, database_service: VectorStoreService):
     """Method to get the config for the app"""
 
     app.config["API_TITLE"] = "Document Analyzer"
@@ -16,6 +16,6 @@ def get_app_config(app: Flask, database_service: DatabaseService):
     )
 
     # config to get access to database service
-    app.config["database_service"] = database_service
+    app.config["vectorstore_service"] = database_service
 
     return app
