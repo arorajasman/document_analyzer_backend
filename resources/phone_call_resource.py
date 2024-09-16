@@ -58,7 +58,7 @@ class CallSummary(MethodView):
             """################### FOR TESTING PURPOSE ###########"""
             file_url = prompt_data["file_url"]
             if not file_url:
-                file_url = "audio_files/policy_conv.mp3"
+                file_url = "assets/audio_files/policy_conv.mp3"
             """####################################################"""
             transcription_data: dict = TranscribeSummary.generate_transcription(  # noqa
                 file_url,
