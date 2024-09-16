@@ -7,14 +7,13 @@ from services.llm_service import LLMService
 from utils.app_utils import AppUtils
 from utils.app_constants import app_strings
 
-from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate
-from langchain_core.output_parsers import (
-    StrOutputParser,
+from langchain_core.output_parsers import StrOutputParser
+from langchain_core.runnables import RunnablePassthrough
+from langchain.output_parsers.structured import (
     ResponseSchema,
     StructuredOutputParser,
-)
-from langchain_core.runnables import RunnablePassthrough
+)  # noqa
 
 
 class TranscribeSummary:
@@ -91,48 +90,62 @@ class TranscribeSummary:
 
     @staticmethod
     def generate_summary_v2(prompt_data):
-        model = LLMService.get_gpt_model()
+        try:
+            model = LLMService.get_gpt_model()
 
-        # summarization chain
-        summarization_prompt = ChatPromptTemplate.from_template(
-            app_strings["summarization_prompt"]
-        )
+            # summarization chain
+            summarization_prompt = ChatPromptTemplate.from_template(
+                app_strings["summarization_prompt"]
+            )
 
-        output_parser = StrOutputParser()
+            output_parser = StrOutputParser()
 
-        summarization_chain = (
-            {"conversation": RunnablePassthrough()}
-            | summarization_prompt
-            | model
-            | output_parser
-        )
+            summarization_chain = (
+                {"conversation": RunnablePassthrough()}
+                | summarization_prompt
+                | model
+                | output_parser
+            )
 
-        summarization_response = summarization_chain.invoke(prompt_data)
+            summarization_response = summarization_chain.invoke(prompt_data)
 
-        # user requirements chain
+            # user requirements chain
 
-        requirements_prompt = ChatPromptTemplate.from_template(
-            app_strings["generate_requirements_prompt"]
-        )
+            requirements_prompt = ChatPromptTemplate.from_template(
+                app_strings["generate_requirements_prompt"]
+            )
 
-        requirements_response_schema = [
-            ResponseSchema(
-                name="requirements", description="List of requirements in string format"
-            ),
-        ]
-        requirements_output_parser = StructuredOutputParser.from_response_schemas(
-            requirements_response_schema
-        )
+            requirements_response_schema = [
+                ResponseSchema(
+                    name="requirements",
+                    description="List of requirements in string format",  # noqa
+                    type="List[string]",
+                ),
+            ]
+            requirements_output_parser = (
+                StructuredOutputParser.from_response_schemas(  # noqa
+                    requirements_response_schema
+                )
+            )
 
-        requirements_chain = (
-            {"summary": RunnablePassthrough()}
-            | requirements_prompt
-            | model
-            | requirements_output_parser
-        )
+            requirements_chain = (
+                {"summary": RunnablePassthrough()}
+                | requirements_prompt
+                | model
+                | requirements_output_parser
+            )
 
-        requirements_response = requirements_chain.invoke(summarization_response)
+            requirements_response = requirements_chain.invoke(
+                summarization_response
+            )  # noqa
 
-        # ranking chain
+            # ranking chain
 
-        return (summarization_response, requirements_response)
+            return (
+                summarization_response,
+                requirements_response.get_format_instructions(),
+            )
+        except Exception as e:
+            print("error while generating the summary")
+            print(str(e))
+            raise e

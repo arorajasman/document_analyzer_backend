@@ -1,6 +1,7 @@
 from http import HTTPStatus
 import os
 
+from flask import jsonify
 from flask.views import MethodView
 from flask_smorest import Blueprint, abort
 import assemblyai as aai
@@ -8,9 +9,6 @@ import assemblyai as aai
 from schemas.call_transcription_schema import (
     CallTranscriptionSchema,
     CallRecordingSchema,
-)
-from schemas.recording_summary_schema import (
-    Summary,
 )
 from services.transcribe_summary_service import TranscribeSummary
 
@@ -50,7 +48,6 @@ class CallSummary(MethodView):
     """Resource to get the summary of the recording"""
 
     @phone_call_blueprint.arguments(CallRecordingSchema)
-    @phone_call_blueprint.response(HTTPStatus.OK, Summary)
     def post(self, prompt_data):
         """Method to get the summary from the recording"""
 
@@ -72,18 +69,30 @@ class CallSummary(MethodView):
             #     transcription_data["transcript"]
             # )  # noqa
 
-            (summarization_response, requirements_response) = TranscribeSummary.generate_summary_v2(transcription_data["transcript"])
+            (summarization_response, requirements_response) = (
+                TranscribeSummary.generate_summary_v2(
+                    transcription_data["transcript"]
+                )  # noqa
+            )  # noqa
+
+            print(summarization_response, type(summarization_response))
+            print(requirements_response, type(requirements_response))
 
             # keywords = TranscribeSummary.generate_keywords(summary)
 
-            return {
-                "recording_summary": summarization_response, 
-                "ranked_policies": [
+            return (
+                jsonify(
                     {
-                        "policy_name": requirements_response,
-                        "ranking": "2",
+                        "recording_summary": summarization_response,
+                        "ranked_policies": [
+                            {
+                                "policy_name": requirements_response,
+                                "ranking": "2",
+                            }
+                        ],
                     }
-                ],
-            }, HTTPStatus.OK
+                ),
+                HTTPStatus.OK,
+            )
         except Exception as e:
             return abort(HTTPStatus.INTERNAL_SERVER_ERROR, message=str(e))
