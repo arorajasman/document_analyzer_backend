@@ -68,17 +68,19 @@ class CallSummary(MethodView):
                     HTTPStatus.INTERNAL_SERVER_ERROR,
                     message=str(transcription_data["error"]),
                 )
-            summary = TranscribeSummary.generate_summary(
-                transcription_data["transcript"]
-            )  # noqa
+            # summary = TranscribeSummary.generate_summary(
+            #     transcription_data["transcript"]
+            # )  # noqa
+
+            (summarization_response, requirements_response) = TranscribeSummary.generate_summary_v2(transcription_data["transcript"])
 
             # keywords = TranscribeSummary.generate_keywords(summary)
 
             return {
-                "recording_summary": summary,
+                "recording_summary": summarization_response, 
                 "ranked_policies": [
                     {
-                        "policy_name": "keywords",
+                        "policy_name": requirements_response,
                         "ranking": "2",
                     }
                 ],

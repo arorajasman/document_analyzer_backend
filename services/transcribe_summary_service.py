@@ -2,8 +2,19 @@ import os
 from openai import OpenAI
 import assemblyai as aai
 
+from services.llm_service import LLMService
+
 from utils.app_utils import AppUtils
 from utils.app_constants import app_strings
+
+from langchain_openai import ChatOpenAI
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.output_parsers import (
+    StrOutputParser,
+    ResponseSchema,
+    StructuredOutputParser,
+)
+from langchain_core.runnables import RunnablePassthrough
 
 
 class TranscribeSummary:
@@ -77,3 +88,51 @@ class TranscribeSummary:
             return {"transcript": combined_text}
         except Exception as e:
             return {"error": str(e)}
+
+    @staticmethod
+    def generate_summary_v2(prompt_data):
+        model = LLMService.get_gpt_model()
+
+        # summarization chain
+        summarization_prompt = ChatPromptTemplate.from_template(
+            app_strings["summarization_prompt"]
+        )
+
+        output_parser = StrOutputParser()
+
+        summarization_chain = (
+            {"conversation": RunnablePassthrough()}
+            | summarization_prompt
+            | model
+            | output_parser
+        )
+
+        summarization_response = summarization_chain.invoke(prompt_data)
+
+        # user requirements chain
+
+        requirements_prompt = ChatPromptTemplate.from_template(
+            app_strings["generate_requirements_prompt"]
+        )
+
+        requirements_response_schema = [
+            ResponseSchema(
+                name="requirements", description="List of requirements in string format"
+            ),
+        ]
+        requirements_output_parser = StructuredOutputParser.from_response_schemas(
+            requirements_response_schema
+        )
+
+        requirements_chain = (
+            {"summary": RunnablePassthrough()}
+            | requirements_prompt
+            | model
+            | requirements_output_parser
+        )
+
+        requirements_response = requirements_chain.invoke(summarization_response)
+
+        # ranking chain
+
+        return (summarization_response, requirements_response)

@@ -41,7 +41,7 @@ class VectorStoreService:
         try:
             BATCH_SIZE = 10
             for index in range(0, len(documents), BATCH_SIZE):
-                docs_batch = documents[index : index + 10]  # noqa: E203
+                docs_batch = documents[index: index + 10]  # noqa: E203
                 self.vector_store.add_documents(docs_batch)
         except Exception as e:
             raise e
@@ -57,3 +57,6 @@ class VectorStoreService:
             return document
         except Exception as e:
             raise e
+
+    def get_retriver(self):
+        return self.vector_store.as_retriver()
