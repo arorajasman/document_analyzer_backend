@@ -42,6 +42,28 @@ class TranscribeSummary:
         )
         return response_data.choices[0].message.content
 
+    def generate_requirements(summary):
+        client = OpenAI(api_key=os.getenv("OPEN_API_KEY"))
+        response_data = client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            stream=False,
+            messages=[
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": AppUtils.get_system_prompt_text(
+                                app_strings["generate_requirements_prompt"],
+                                summary=summary,
+                            ),
+                        }
+                    ],
+                },
+            ],
+        )
+        return response_data.choices[0].message.content
+
     def get_transcription_with_assembly_ai(self, file_url: str):
         try:
             aai.settings.api_key = os.getenv("ASSEMBLY_AI_API_KEY")
