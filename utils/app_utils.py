@@ -7,11 +7,12 @@ class AppUtils:
 
         try:
             text = content.format(**kwargs)
+            return text
         except KeyError as e:
-            return f"Error: Missing key {e} in the format string."
+            raise KeyError(f"Error: Missing key {e} in the format string.")
         except ValueError as e:
-            return f"Error: Invalid format string or mismatch in arguments. {e}"  # noqa
+            raise ValueError(
+                f"Error: Invalid format string or mismatch in arguments. {e}"
+            )  # noqa
         except Exception as e:
-            return f"An unexpected error occurred: {e}"
-
-        return text
+            raise Exception(f"An unexpected error occurred: {e}")
