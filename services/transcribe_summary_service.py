@@ -8,12 +8,10 @@ from utils.app_utils import AppUtils
 from utils.app_constants import app_strings
 
 from langchain_core.prompts import ChatPromptTemplate
-from langchain_core.output_parsers import StrOutputParser
+from langchain_core.output_parsers import StrOutputParser, PydanticOutputParser
 from langchain_core.runnables import RunnablePassthrough
-from langchain.output_parsers.structured import (
-    ResponseSchema,
-    StructuredOutputParser,
-)  # noqa
+
+from schemas.llm_schemas.requirements_schema import RequirementsResponseSchema 
 
 
 class TranscribeSummary:
@@ -110,29 +108,14 @@ class TranscribeSummary:
             summarization_response = summarization_chain.invoke(prompt_data)
 
             # user requirements chain
-
             requirements_prompt = ChatPromptTemplate.from_template(
                 app_strings["generate_requirements_prompt"]
-            )
-
-            requirements_response_schema = [
-                ResponseSchema(
-                    name="requirements",
-                    description="List of requirements in string format",  # noqa
-                    type="List[string]",
-                ),
-            ]
-            requirements_output_parser = (
-                StructuredOutputParser.from_response_schemas(  # noqa
-                    requirements_response_schema
-                )
             )
 
             requirements_chain = (
                 {"summary": RunnablePassthrough()}
                 | requirements_prompt
-                | model
-                | requirements_output_parser
+                | model.with_structured_output(RequirementsResponseSchema)
             )
 
             requirements_response = requirements_chain.invoke(
@@ -140,10 +123,11 @@ class TranscribeSummary:
             )  # noqa
 
             # ranking chain
+            print('requirements resposne', requirements_response)
 
             return (
                 summarization_response,
-                requirements_response.get_format_instructions(),
+                requirements_response
             )
         except Exception as e:
             print("error while generating the summary")
