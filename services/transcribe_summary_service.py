@@ -1,17 +1,20 @@
 import os
 from openai import OpenAI
 import assemblyai as aai
+from flask_app import app
 
 from services.llm_service import LLMService
+from services.vectorstore_service import VectorStoreService
 
 from utils.app_utils import AppUtils
 from utils.app_constants import app_strings
 
 from langchain_core.prompts import ChatPromptTemplate
-from langchain_core.output_parsers import StrOutputParser, PydanticOutputParser
+from langchain_core.output_parsers import StrOutputParser, PydanticOutputParser # noqa
 from langchain_core.runnables import RunnablePassthrough
 
-from schemas.llm_schemas.requirements_schema import RequirementsResponseSchema 
+from schemas.llm_schemas.requirements_schema import RequirementsResponseSchema
+from schemas.llm_schemas.rankings_response_schema import RankingsResponseSchema
 
 
 class TranscribeSummary:
@@ -122,12 +125,40 @@ class TranscribeSummary:
                 summarization_response
             )  # noqa
 
+            # retriver logic
+            vector_store_service: VectorStoreService = app.config["vectorstore_service"]  # noqa
+
+            retriver = vector_store_service.get_vector_store().as_retriever()
+
+            parsed_retrived_docs = []
+
+            for requirement in requirements_response["requirements"]:
+                docs = retriver.invoke(requirement)
+                for i, doc in enumerate(docs):
+                    parsed_retrived_docs.append({
+                        "content": doc.page_content,
+                        "policy_name": doc.metadata["source"]
+                    })
+
             # ranking chain
-            print('requirements resposne', requirements_response)
+            ranking_prompt = ChatPromptTemplate.from_template(
+                app_strings["generate_ranking_prompt"]
+            )
+
+            ranking_chain = (
+               ranking_prompt | model.with_structured_output(RankingsResponseSchema) # noqa
+            )
+
+            ranking_response = ranking_chain.invoke({
+                "conversation": summarization_response,
+                "policy_documents": str(parsed_retrived_docs)
+            })
 
             return (
                 summarization_response,
-                requirements_response
+                requirements_response,
+                parsed_retrived_docs,
+                ranking_response
             )
         except Exception as e:
             print("error while generating the summary")

@@ -23,6 +23,9 @@ class VectorStoreService:
         self.connection = os.getenv("PG_VECTOR_DATABASE_URL")
         self.create_vector_store()
 
+    def get_vector_store(self):
+        return self.vector_store
+
     def create_vector_store(self):
         """Method to create a vector store"""
 

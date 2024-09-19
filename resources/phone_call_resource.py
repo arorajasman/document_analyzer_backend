@@ -69,7 +69,12 @@ class CallSummary(MethodView):
             #     transcription_data["transcript"]
             # )  # noqa
 
-            (summarization_response, requirements_response) = (
+            (
+                summarization_response,
+                requirements_response,
+                parsed_retrived_docs,
+                ranking_response
+            ) = (
                 TranscribeSummary.generate_summary_v2(
                     transcription_data["transcript"]
                 )  # noqa
@@ -84,12 +89,9 @@ class CallSummary(MethodView):
                 jsonify(
                     {
                         "recording_summary": summarization_response,
-                        "ranked_policies": [
-                            {
-                                "policy_name": requirements_response,
-                                "ranking": "2",
-                            }
-                        ],
+                        "requirements_response": requirements_response,
+                        "policies": parsed_retrived_docs,
+                        "ranked_policies": ranking_response,
                     }
                 ),
                 HTTPStatus.OK,

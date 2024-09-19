@@ -28,9 +28,11 @@ app_strings = {
         You are given the conversation that is happened between the customer and sale person
         in the `<conversation></conversation>` tag.  You are also given the N number of
         policy documents (policy name and content of the policy) in <policy_documents> tag.
-        Your task is to rank the policies with a store of 0 to 9 (0 for worst match to 9 for
-        best match) based on the conversation. In case you can't find the best matching policies
-        return the response with `No matching polices found`.
+        The given policy is retrived from vector store so it may contain duplicates. But in the 
+        final response DO NOT add any duplicate policies. Your task is to rank the policies with
+        a store of 0 to 9 (0 for worst match to 9 for best match) based on the conversation. 
+        In case you can't find the best matching policies return the response with 
+        `No matching polices found`.
 
         Conversation:
         <conversation>

@@ -2,12 +2,11 @@ import os
 from faster_whisper import WhisperModel
 from pyannote.audio import Pipeline
 
-model_size = "small"
-model = WhisperModel(model_size, device="cpu", compute_type="int8")
-
 
 def generate_transcription(audio_file="audio_files/policy_conv.mp3"):
     try:
+        model_size = "small"
+        model = WhisperModel(model_size, device="cpu", compute_type="int8")
         diarization_pipeline = Pipeline.from_pretrained(
             "pyannote/speaker-diarization-3.1",
             use_auth_token=os.getenv("HUGGING_FACE_API_KEY"),
