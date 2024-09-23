@@ -9,6 +9,7 @@ import assemblyai as aai
 from schemas.call_transcription_schema import (
     CallTranscriptionSchema,
     CallRecordingSchema,
+    PolicyRankingSchema
 )
 from services.transcribe_summary_service import TranscribeSummary
 
@@ -69,19 +70,11 @@ class CallSummary(MethodView):
             #     transcription_data["transcript"]
             # )  # noqa
 
-            (
-                summarization_response,
-                requirements_response,
-                parsed_retrived_docs,
-                ranking_response
-            ) = (
+            ( summarization_response ) = (
                 TranscribeSummary.generate_summary_v2(
                     transcription_data["transcript"]
                 )  # noqa
             )  # noqa
-
-            print(summarization_response, type(summarization_response))
-            print(requirements_response, type(requirements_response))
 
             # keywords = TranscribeSummary.generate_keywords(summary)
 
@@ -89,12 +82,39 @@ class CallSummary(MethodView):
                 jsonify(
                     {
                         "recording_summary": summarization_response,
-                        "requirements_response": requirements_response,
-                        "policies": parsed_retrived_docs,
-                        "ranked_policies": ranking_response,
                     }
                 ),
                 HTTPStatus.OK,
             )
         except Exception as e:
             return abort(HTTPStatus.INTERNAL_SERVER_ERROR, message=str(e))
+
+
+
+@phone_call_blueprint.route("/generate_policies")
+class CallSummary(MethodView):
+    """Resource to get the policy ranking based on call summary"""
+
+    @phone_call_blueprint.arguments(PolicyRankingSchema)
+    def post(self, prompt_data):
+        """Method to get the policy ranking based on call summary"""
+
+        try:
+            summary = prompt_data["summary"]
+
+            ( ranking_response ) = (
+                TranscribeSummary.generate_policy_ranking(summary)  
+            )  # noqa
+
+
+            return (
+                jsonify(
+                    {
+                        "ranked_policies": ranking_response["policy_rankings"]
+                    }
+                ),
+                HTTPStatus.OK,
+            )
+        except Exception as e:
+            return abort(HTTPStatus.INTERNAL_SERVER_ERROR, message=str(e))
+

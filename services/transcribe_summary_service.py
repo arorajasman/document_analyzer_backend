@@ -8,10 +8,14 @@ from services.vectorstore_service import VectorStoreService
 
 from utils.app_utils import AppUtils
 from utils.app_constants import app_strings
+from utils.llm_tools.retriver_tools import policy_retriver_tool
 
-from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.output_parsers import StrOutputParser, PydanticOutputParser # noqa
 from langchain_core.runnables import RunnablePassthrough
+from langchain.agents import create_tool_calling_agent, AgentExecutor, create_openai_tools_agent
+from langchain.agents.format_scratchpad import format_to_openai_function_messages
+from langchain import hub
 
 from schemas.llm_schemas.requirements_schema import RequirementsResponseSchema
 from schemas.llm_schemas.rankings_response_schema import RankingsResponseSchema
@@ -110,6 +114,17 @@ class TranscribeSummary:
 
             summarization_response = summarization_chain.invoke(prompt_data)
 
+            return ( summarization_response )
+        except Exception as e:
+            print("error while generating the summary")
+            print(str(e))
+            raise e
+
+    @staticmethod
+    def generate_policy_ranking(summary):
+        try:
+            model = LLMService.get_gpt_model()
+
             # user requirements chain
             requirements_prompt = ChatPromptTemplate.from_template(
                 app_strings["generate_requirements_prompt"]
@@ -122,7 +137,7 @@ class TranscribeSummary:
             )
 
             requirements_response = requirements_chain.invoke(
-                summarization_response
+               summary 
             )  # noqa
 
             # retriver logic
@@ -150,14 +165,11 @@ class TranscribeSummary:
             )
 
             ranking_response = ranking_chain.invoke({
-                "conversation": summarization_response,
+                "conversation": summary,
                 "policy_documents": str(parsed_retrived_docs)
             })
 
             return (
-                summarization_response,
-                requirements_response,
-                parsed_retrived_docs,
                 ranking_response
             )
         except Exception as e:

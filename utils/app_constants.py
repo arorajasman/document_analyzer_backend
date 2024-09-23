@@ -14,7 +14,7 @@ app_strings = {
 
     "generate_requirements_prompt": textwrap.dedent("""
         Given a summary of conversation between sales representative and the customer generate the
-        requiremets of the customer. The generate requirements should be returned as a list.
+        requiremets of the customer. The generated requirements should be returned as a list.
 
         Summary:
         <summary>{summary}</summary>
