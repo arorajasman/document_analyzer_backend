@@ -24,3 +24,9 @@ class CallRecordingSchema(Schema):
     """Schema to get the file for transribing"""
 
     file_url = fields.Str()
+
+
+class PolicyRankingSchema(Schema):
+    """Schema to get the file for transribing"""
+
+    summary = fields.Str()

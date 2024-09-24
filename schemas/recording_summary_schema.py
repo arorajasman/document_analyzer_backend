@@ -9,7 +9,9 @@ class RecordingSummarySchema(Schema):
 
 class RankedPolicySchema(Schema):
     ranking = fields.Str()
-    policy_name = fields.Str()
+    policy_name = fields.Dict(
+        keys=fields.Str(), values=fields.List(fields.Str())
+    )  # noqa
     document_source = fields.Str()
 
 

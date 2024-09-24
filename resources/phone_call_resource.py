@@ -1,6 +1,7 @@
 from http import HTTPStatus
 import os
 
+from flask import jsonify
 from flask.views import MethodView
 from flask_smorest import Blueprint, abort
 import assemblyai as aai
@@ -8,9 +9,7 @@ import assemblyai as aai
 from schemas.call_transcription_schema import (
     CallTranscriptionSchema,
     CallRecordingSchema,
-)
-from schemas.recording_summary_schema import (
-    Summary,
+    PolicyRankingSchema,
 )
 from services.transcribe_summary_service import TranscribeSummary
 
@@ -50,7 +49,6 @@ class CallSummary(MethodView):
     """Resource to get the summary of the recording"""
 
     @phone_call_blueprint.arguments(CallRecordingSchema)
-    @phone_call_blueprint.response(HTTPStatus.OK, Summary)
     def post(self, prompt_data):
         """Method to get the summary from the recording"""
 
@@ -68,20 +66,69 @@ class CallSummary(MethodView):
                     HTTPStatus.INTERNAL_SERVER_ERROR,
                     message=str(transcription_data["error"]),
                 )
-            summary = TranscribeSummary.generate_summary(
+            # summary = TranscribeSummary.generate_summary(
+            #     transcription_data["transcript"]
+            # )  # noqa
+
+            (summarization_response) = TranscribeSummary.generate_summary_v2(
                 transcription_data["transcript"]
-            )  # noqa
+            )  # noqa  # noqa
 
             # keywords = TranscribeSummary.generate_keywords(summary)
 
-            return {
-                "recording_summary": summary,
-                "ranked_policies": [
+            return (
+                jsonify(
                     {
-                        "policy_name": "keywords",
-                        "ranking": "2",
+                        "recording_summary": summarization_response,
                     }
-                ],
-            }, HTTPStatus.OK
+                ),
+                HTTPStatus.OK,
+            )
+        except Exception as e:
+            return abort(HTTPStatus.INTERNAL_SERVER_ERROR, message=str(e))
+
+
+@phone_call_blueprint.route("/generate_policies")
+class PolicyRanking(MethodView):
+    """Resource to get the policy ranking based on call summary"""
+
+    @phone_call_blueprint.arguments(PolicyRankingSchema)
+    def post(self, prompt_data):
+        """Method to get the policy ranking based on call summary"""
+
+        try:
+            summary = prompt_data["summary"]
+
+            (ranking_response) = TranscribeSummary.generate_policy_ranking(
+                summary
+            )  # noqa
+
+            return (
+                jsonify({"ranked_policies": ranking_response["policy_rankings"]}), # noqa
+                HTTPStatus.OK,
+            )
+        except Exception as e:
+            return abort(HTTPStatus.INTERNAL_SERVER_ERROR, message=str(e))
+
+
+@phone_call_blueprint.route("/generate_policies_agent")
+class PolicyRankingAgent(MethodView):
+    """Resource to get the policy ranking based on call summary using langchain agent""" # noqa
+
+    @phone_call_blueprint.arguments(PolicyRankingSchema)
+    def post(self, prompt_data):
+        """Method to get the policy ranking based on call summary using langchain agent""" # noqa
+
+        try:
+            summary = prompt_data["summary"]
+
+            (agent_response) = TranscribeSummary.generate_policy_agent(
+                summary
+            )  # noqa
+
+            return (
+                jsonify({"ranked_policies": agent_response}),
+                HTTPStatus.OK,
+            )
         except Exception as e:
             return abort(HTTPStatus.INTERNAL_SERVER_ERROR, message=str(e))
