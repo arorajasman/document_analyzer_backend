@@ -9,7 +9,7 @@ import assemblyai as aai
 from schemas.call_transcription_schema import (
     CallTranscriptionSchema,
     CallRecordingSchema,
-    PolicyRankingSchema
+    PolicyRankingSchema,
 )
 from services.transcribe_summary_service import TranscribeSummary
 
@@ -70,11 +70,9 @@ class CallSummary(MethodView):
             #     transcription_data["transcript"]
             # )  # noqa
 
-            ( summarization_response ) = (
-                TranscribeSummary.generate_summary_v2(
-                    transcription_data["transcript"]
-                )  # noqa
-            )  # noqa
+            (summarization_response) = TranscribeSummary.generate_summary_v2(
+                transcription_data["transcript"]
+            )  # noqa  # noqa
 
             # keywords = TranscribeSummary.generate_keywords(summary)
 
@@ -90,9 +88,8 @@ class CallSummary(MethodView):
             return abort(HTTPStatus.INTERNAL_SERVER_ERROR, message=str(e))
 
 
-
 @phone_call_blueprint.route("/generate_policies")
-class CallSummary(MethodView):
+class PolicyRanking(MethodView):
     """Resource to get the policy ranking based on call summary"""
 
     @phone_call_blueprint.arguments(PolicyRankingSchema)
@@ -102,19 +99,36 @@ class CallSummary(MethodView):
         try:
             summary = prompt_data["summary"]
 
-            ( ranking_response ) = (
-                TranscribeSummary.generate_policy_ranking(summary)  
+            (ranking_response) = TranscribeSummary.generate_policy_ranking(
+                summary
             )  # noqa
 
-
             return (
-                jsonify(
-                    {
-                        "ranked_policies": ranking_response["policy_rankings"]
-                    }
-                ),
+                jsonify({"ranked_policies": ranking_response["policy_rankings"]}), # noqa
                 HTTPStatus.OK,
             )
         except Exception as e:
             return abort(HTTPStatus.INTERNAL_SERVER_ERROR, message=str(e))
 
+
+@phone_call_blueprint.route("/generate_policies_agent")
+class PolicyRankingAgent(MethodView):
+    """Resource to get the policy ranking based on call summary using langchain agent""" # noqa
+
+    @phone_call_blueprint.arguments(PolicyRankingSchema)
+    def post(self, prompt_data):
+        """Method to get the policy ranking based on call summary using langchain agent""" # noqa
+
+        try:
+            summary = prompt_data["summary"]
+
+            (agent_response) = TranscribeSummary.generate_policy_agent(
+                summary
+            )  # noqa
+
+            return (
+                jsonify({"ranked_policies": agent_response}),
+                HTTPStatus.OK,
+            )
+        except Exception as e:
+            return abort(HTTPStatus.INTERNAL_SERVER_ERROR, message=str(e))

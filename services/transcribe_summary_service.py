@@ -10,12 +10,20 @@ from utils.app_utils import AppUtils
 from utils.app_constants import app_strings
 from utils.llm_tools.retriver_tools import policy_retriver_tool
 
-from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
-from langchain_core.output_parsers import StrOutputParser, PydanticOutputParser # noqa
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder  # noqa
+from langchain_core.output_parsers import StrOutputParser, PydanticOutputParser  # noqa
 from langchain_core.runnables import RunnablePassthrough
-from langchain.agents import create_tool_calling_agent, AgentExecutor, create_openai_tools_agent
-from langchain.agents.format_scratchpad import format_to_openai_function_messages
-from langchain import hub
+from langchain.agents import (  # noqa
+    create_tool_calling_agent,
+    AgentExecutor,
+    create_openai_tools_agent,
+    create_react_agent,
+    create_openai_functions_agent,
+)  # noqa
+from langchain.agents.format_scratchpad import (
+    format_to_openai_function_messages,
+)  # noqa
+from langchain import hub  # noqa
 
 from schemas.llm_schemas.requirements_schema import RequirementsResponseSchema
 from schemas.llm_schemas.rankings_response_schema import RankingsResponseSchema
@@ -114,7 +122,7 @@ class TranscribeSummary:
 
             summarization_response = summarization_chain.invoke(prompt_data)
 
-            return ( summarization_response )
+            return summarization_response
         except Exception as e:
             print("error while generating the summary")
             print(str(e))
@@ -136,42 +144,82 @@ class TranscribeSummary:
                 | model.with_structured_output(RequirementsResponseSchema)
             )
 
-            requirements_response = requirements_chain.invoke(
-               summary 
-            )  # noqa
+            requirements_response = requirements_chain.invoke(summary)  # noqa
 
             # retriver logic
-            vector_store_service: VectorStoreService = app.config["vectorstore_service"]  # noqa
+            vector_store_service: VectorStoreService = app.config[
+                "vectorstore_service"
+            ]  # noqa
 
-            retriver = vector_store_service.get_vector_store().as_retriever()
+            retriver = vector_store_service.get_vector_store().as_retriever(
+                search_kwargs={"k": 8}
+            )
 
             parsed_retrived_docs = []
 
             for requirement in requirements_response["requirements"]:
                 docs = retriver.invoke(requirement)
+                print("retrived documents length", len(docs))
                 for i, doc in enumerate(docs):
-                    parsed_retrived_docs.append({
-                        "content": doc.page_content,
-                        "policy_name": doc.metadata["source"]
-                    })
+                    parsed_retrived_docs.append(
+                        {
+                            "content": doc.page_content,
+                            "policy_name": doc.metadata["source"],
+                        }
+                    )
 
             # ranking chain
             ranking_prompt = ChatPromptTemplate.from_template(
                 app_strings["generate_ranking_prompt"]
             )
 
-            ranking_chain = (
-               ranking_prompt | model.with_structured_output(RankingsResponseSchema) # noqa
+            ranking_chain = ranking_prompt | model.with_structured_output(
+                RankingsResponseSchema
+            )  # noqa
+
+            ranking_response = ranking_chain.invoke(
+                {
+                    "conversation": summary,
+                    "policy_documents": str(parsed_retrived_docs),
+                }  # noqa
             )
 
-            ranking_response = ranking_chain.invoke({
-                "conversation": summary,
-                "policy_documents": str(parsed_retrived_docs)
-            })
+            return ranking_response
+        except Exception as e:
+            print("error while generating the summary")
+            print(str(e))
+            raise e
 
-            return (
-                ranking_response
+    @staticmethod
+    def generate_policy_agent(summary):
+        try:
+            model = LLMService.get_gpt_model()
+
+            # retriver logic
+            vector_store_service: VectorStoreService = app.config[
+                "vectorstore_service"
+            ]  # noqa
+
+            retriver = vector_store_service.get_vector_store().as_retriever(
+                search_kwargs={"k": 5}
             )
+
+            policy_retriver = policy_retriver_tool(retriver=retriver)
+
+            tools = [policy_retriver]
+
+            prompt = hub.pull("hwchase17/openai-functions-agent")
+
+            agent = create_openai_functions_agent(
+                llm=model, prompt=prompt, tools=tools
+            )  # noqa
+
+            agent_executor = AgentExecutor( agent=agent, tools=tools, verbose=True, return_intermediate_steps=True )  # noqa
+
+            agent_response = agent_executor.invoke({"input": {summary}})
+
+            print(agent_response)
+            return agent_response
         except Exception as e:
             print("error while generating the summary")
             print(str(e))

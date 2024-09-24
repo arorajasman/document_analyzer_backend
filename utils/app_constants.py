@@ -31,6 +31,7 @@ app_strings = {
         The given policy is retrived from vector store so it may contain duplicates. But in the 
         final response DO NOT add any duplicate policies. Your task is to rank the policies with
         a store of 0 to 9 (0 for worst match to 9 for best match) based on the conversation. 
+        You should response with atleast 3 policies ranked based on the above rules.
         In case you can't find the best matching policies return the response with 
         `No matching polices found`.
 
