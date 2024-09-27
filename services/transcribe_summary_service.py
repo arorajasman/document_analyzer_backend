@@ -20,9 +20,6 @@ from langchain.agents import (  # noqa
     create_react_agent,
     create_openai_functions_agent,
 )  # noqa
-from langchain.agents.format_scratchpad import (
-    format_to_openai_function_messages,
-)  # noqa
 from langchain import hub  # noqa
 
 from schemas.llm_schemas.requirements_schema import RequirementsResponseSchema

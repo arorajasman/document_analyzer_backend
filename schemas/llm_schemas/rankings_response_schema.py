@@ -4,19 +4,32 @@ from typing import List
 
 class RankingsResponseItem(TypedDict):
 
+    id: Annotated[str, "Unique UUID of the policy"]
+
     policy_name: Annotated[str, "Name of the policy."]
 
-    rank: Annotated[str, "Rank given to the policy lower is better"] # noqa
+    rank: Annotated[str, "Rank given to the policy lower is better"]  # noqa
 
-    match_score: Annotated[int, "Match score of the policy in percentage. Should be beween 0 to 100"]
+    match_score: Annotated[
+        int,
+        "Match score of the policy in percentage. Should be beween 0 to 100",  # noqa
+    ]
 
     reason: Annotated[str, "Reason for the given rank."]
 
-    accuracy: Annotated[str, 'Accuracy of the given rank should be either (very_low, low, mid, high, very_high)'] # noqa
+    accuracy: Annotated[
+        str,
+        "Accuracy of the given rank should be either (very_low, low, mid, high, very_high)",  # noqa
+    ]  # noqa
 
-    description: Annotated[str, 'A brief description of the policy fetch from the vector store.']
+    description: Annotated[
+        str, "A brief description of the policy fetch from the vector store."
+    ]
 
     key_features: Annotated[List[str], "A list of key features of the policy"]
 
-class RankingsResponseSchema(TypedDict): 
-    policy_rankings: Annotated[List[RankingsResponseItem], 'Array of policies that are ranked.']
+
+class RankingsResponseSchema(TypedDict):
+    policy_rankings: Annotated[
+        List[RankingsResponseItem], "Array of policies that are ranked."
+    ]
