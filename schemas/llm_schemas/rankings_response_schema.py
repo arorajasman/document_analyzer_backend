@@ -6,7 +6,7 @@ class RankingsResponseItem(TypedDict):
 
     id: Annotated[str, "Unique UUID of the policy"]
 
-    policy_name: Annotated[str, "Name of the policy."]
+    policy_name: Annotated[str, "Name of the policy. Extraced from the policy_path"] # noqa
 
     rank: Annotated[str, "Rank given to the policy lower is better"]  # noqa
 
@@ -26,7 +26,7 @@ class RankingsResponseItem(TypedDict):
         str, "A brief description of the policy fetch from the vector store."
     ]
 
-    key_features: Annotated[List[str], "A list of key features of the policy"]
+    key_features: Annotated[List[str], "A list of key features of the policy. Per key feature should be a single sentence"] # noqa
 
 
 class RankingsResponseSchema(TypedDict):

@@ -132,7 +132,8 @@ class TranscribeSummary:
 
             # user requirements chain
             requirements_prompt = ChatPromptTemplate.from_template(
-                app_strings["generate_requirements_prompt"]
+                # app_strings["generate_requirements_prompt"]
+                app_strings["generate_requirements_prompt_v2"]
             )
 
             requirements_chain = (
@@ -149,39 +150,45 @@ class TranscribeSummary:
             ]  # noqa
 
             retriver = vector_store_service.get_vector_store().as_retriever(
-                search_kwargs={"k": 8}
+                search_kwargs={"k": 10}
             )
 
             parsed_retrived_docs = []
+            ranking = None
 
             for requirement in requirements_response["requirements"]:
                 docs = retriver.invoke(requirement)
+                temp_parsed_docs = []
                 print("retrived documents length", len(docs))
                 for i, doc in enumerate(docs):
-                    parsed_retrived_docs.append(
+                    temp_parsed_docs.append(
                         {
                             "content": doc.page_content,
-                            "policy_name": doc.metadata["source"],
+                            "policy_path": doc.metadata["source"],
                         }
                     )
+                parsed_retrived_docs.append([i for i in temp_parsed_docs])
 
-            # ranking chain
-            ranking_prompt = ChatPromptTemplate.from_template(
-                app_strings["generate_ranking_prompt"]
-            )
+                # ranking chain
+                ranking_prompt = ChatPromptTemplate.from_template(
+                    # app_strings["generate_ranking_prompt"]
+                    app_strings["policy_ranking"]
+                )
 
-            ranking_chain = ranking_prompt | model.with_structured_output(
-                RankingsResponseSchema
-            )  # noqa
+                ranking_chain = ranking_prompt | model.with_structured_output( # noqa
+                    RankingsResponseSchema
+                )  # noqa
 
-            ranking_response = ranking_chain.invoke(
-                {
-                    "conversation": summary,
-                    "policy_documents": str(parsed_retrived_docs),
-                }  # noqa
-            )
+                current_ranking = ranking_chain.invoke(
+                    {
+                        "conversation": summary,
+                        "policy_documents": str(temp_parsed_docs),
+                        "existing_policy_ranking": str(ranking)
+                    }  # noqa
+                )
+                ranking = current_ranking
 
-            return ranking_response
+            return ranking
         except Exception as e:
             print("error while generating the summary")
             print(str(e))
