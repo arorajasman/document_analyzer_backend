@@ -23,7 +23,7 @@ class RankingsResponseItem(TypedDict):
     ]  # noqa
 
     description: Annotated[
-        str, "A brief description of the policy fetch from the vector store."
+        str, "A brief description ( typically single paragraph ) of the policy generated using the policy documents. Don't get confused with key features" # noqa
     ]
 
     key_features: Annotated[List[str], "A list of key features of the policy. Per key feature should be a single sentence"] # noqa
