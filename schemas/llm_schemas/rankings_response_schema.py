@@ -1,5 +1,11 @@
 from typing_extensions import TypedDict, Annotated
 from typing import List
+import textwrap
+
+
+class KeyFeaturesResponse(TypedDict): 
+    feature: Annotated[str, "Name of the key feature"]
+    description: Annotated[str, "A short description (one or two lines) of the key feature"]
 
 
 class RankingsResponseItem(TypedDict):
@@ -12,7 +18,7 @@ class RankingsResponseItem(TypedDict):
 
     match_score: Annotated[
         int,
-        "Match score of the policy in percentage. Should be beween 0 to 100",  # noqa
+        "Match score of the policy against the conversation and requirements in percentage. Should be beween 0 to 100",  # noqa
     ]
 
     reason: Annotated[str, "Reason for the given rank."]
@@ -23,10 +29,16 @@ class RankingsResponseItem(TypedDict):
     ]  # noqa
 
     description: Annotated[
-        str, "A brief description ( typically single paragraph ) of the policy generated using the policy documents. Don't get confused with key features" # noqa
+        str, "Information or description ( less than or equal to 50 words) about the policy generated using the policy documents provided." # noqa
     ]
 
-    key_features: Annotated[List[str], "A list of key features of the policy. Per key feature should be a single sentence"] # noqa
+    key_features: Annotated[List[str], textwrap.dedent("""
+        A list of benefits of the policy.
+
+        Example: [benefit]:[short summary of the feature]
+                "Maternity Coverage: Offers reimbursement or cashless facilities for childbirth-related medical expenses, 
+                     with a 24-month waiting period and specific eligibility and exclusion criteria."
+    """)] # noqa
 
 
 class RankingsResponseSchema(TypedDict):

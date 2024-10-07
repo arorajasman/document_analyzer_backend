@@ -128,6 +128,7 @@ class TranscribeSummary:
     @staticmethod
     def generate_policy_ranking(summary):
         try:
+            # model = LLMService.get_gpt_model(model='gpt-4o-mini')
             model = LLMService.get_gpt_model()
 
             # user requirements chain
@@ -150,17 +151,25 @@ class TranscribeSummary:
             ]  # noqa
 
             retriver = vector_store_service.get_vector_store().as_retriever(
-                search_kwargs={"k": 10}
+                search_kwargs={"k": 12}
             )
+
+            description_retriver = vector_store_service.get_vector_store().as_retriever(  # noqa
+                search_kwargs={"k": 8}
+            )
+            description_docs = description_retriver.invoke("Retrieve policy description") # noqa
 
             parsed_retrived_docs = []
             ranking = None
 
             for requirement in requirements_response["requirements"]:
-                docs = retriver.invoke(requirement)
                 temp_parsed_docs = []
-                print("retrived documents length", len(docs))
-                for i, doc in enumerate(docs):
+
+                docs = retriver.invoke(requirement)
+
+                combined_docs = docs + description_docs
+
+                for i, doc in enumerate(combined_docs):
                     temp_parsed_docs.append(
                         {
                             "content": doc.page_content,
