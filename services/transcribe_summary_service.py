@@ -24,6 +24,8 @@ from langchain import hub  # noqa
 
 from schemas.llm_schemas.requirements_schema import RequirementsResponseSchema
 from schemas.llm_schemas.rankings_response_schema import RankingsResponseSchema
+import time
+import json
 
 
 class TranscribeSummary:
@@ -128,8 +130,14 @@ class TranscribeSummary:
     @staticmethod
     def generate_policy_ranking(summary):
         try:
-            # model = LLMService.get_gpt_model(model='gpt-4o-mini')
-            model = LLMService.get_gpt_model()
+            model = LLMService.get_gpt_model(model='gpt-4o-mini')
+            # model = LLMService.get_gpt_model()
+
+            data, isFilePresent = TranscribeSummary.check_json_file()
+
+            if isFilePresent:
+                time.sleep(3)
+                return data
 
             # user requirements chain
             requirements_prompt = ChatPromptTemplate.from_template(
@@ -151,25 +159,18 @@ class TranscribeSummary:
             ]  # noqa
 
             retriver = vector_store_service.get_vector_store().as_retriever(
-                search_kwargs={"k": 12}
-            )
-
-            description_retriver = vector_store_service.get_vector_store().as_retriever(  # noqa
                 search_kwargs={"k": 8}
             )
-            description_docs = description_retriver.invoke("Retrieve policy description") # noqa
 
             parsed_retrived_docs = []
             ranking = None
 
-            for requirement in requirements_response["requirements"]:
+            for cycle_number, requirement in enumerate(requirements_response["requirements"][0:5], start=1): # noqa
                 temp_parsed_docs = []
 
                 docs = retriver.invoke(requirement)
 
-                combined_docs = docs + description_docs
-
-                for i, doc in enumerate(combined_docs):
+                for i, doc in enumerate(docs):
                     temp_parsed_docs.append(
                         {
                             "content": doc.page_content,
@@ -178,30 +179,64 @@ class TranscribeSummary:
                     )
                 parsed_retrived_docs.append([i for i in temp_parsed_docs])
 
-                # ranking chain
-                ranking_prompt = ChatPromptTemplate.from_template(
-                    # app_strings["generate_ranking_prompt"]
-                    app_strings["policy_ranking"]
-                )
+            # ranking chain
+            ranking_prompt = ChatPromptTemplate.from_template(
+                # app_strings["generate_ranking_prompt"]
+                app_strings["policy_ranking"]
+            )
 
-                ranking_chain = ranking_prompt | model.with_structured_output( # noqa
-                    RankingsResponseSchema
-                )  # noqa
+            ranking_chain = ranking_prompt | model.with_structured_output( # noqa
+                RankingsResponseSchema
+            )  # noqa
 
-                current_ranking = ranking_chain.invoke(
-                    {
-                        "conversation": summary,
-                        "policy_documents": str(temp_parsed_docs),
-                        "existing_policy_ranking": str(ranking)
-                    }  # noqa
-                )
-                ranking = current_ranking
+            current_ranking = ranking_chain.invoke(
+                {
+                    "conversation": summary,
+                    "policy_documents": str(parsed_retrived_docs),
+                    "existing_policy_ranking": str(ranking),
+                }  # noqa
+            )
+            ranking = current_ranking
+
+            TranscribeSummary.store_data_in_file("./assets/policy.json", "w+", ranking) # noqa
 
             return ranking
         except Exception as e:
             print("error while generating the summary")
             print(str(e))
             raise e
+
+    @staticmethod
+    def check_json_file(file_path="./assets/policy.json"):
+        # check if the fact_sheet.json file exists
+        if os.path.exists(file_path):
+            # check if the data with fact_sheets key exists in json file
+            with open(file_path, "r") as f:
+                data = json.load(f)
+                if "policy_rankings" in data:
+                    return (data, True)
+                else:
+                    return ({}, False)
+        else:
+            return ({}, False)
+
+    @staticmethod
+    def store_data_in_file(file_path: str, mode: str, data: any):
+        """
+        Parameters:
+        ----------
+        mode (str): mode to open the file, 'w' for write, 'w+' to first create the
+        file and then write to it if the file does not exists
+        """
+
+        # creating json
+        fact_sheet_json_object = json.dumps(data, indent=4)
+
+        # storing json in file
+        with open(file_path, mode) as jsonFile:
+            jsonFile.write(fact_sheet_json_object)
+            print("data stored successfully")
+            return True
 
     @staticmethod
     def generate_policy_agent(summary):
