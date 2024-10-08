@@ -24,6 +24,8 @@ from langchain import hub  # noqa
 
 from schemas.llm_schemas.requirements_schema import RequirementsResponseSchema
 from schemas.llm_schemas.rankings_response_schema import RankingsResponseSchema
+import time
+import json
 
 
 class TranscribeSummary:
@@ -131,6 +133,12 @@ class TranscribeSummary:
             model = LLMService.get_gpt_model(model='gpt-4o-mini')
             # model = LLMService.get_gpt_model()
 
+            data, isFilePresent = TranscribeSummary.check_json_file()
+
+            if isFilePresent:
+                time.sleep(3)
+                return data
+
             # user requirements chain
             requirements_prompt = ChatPromptTemplate.from_template(
                 # app_strings["generate_requirements_prompt"]
@@ -190,11 +198,45 @@ class TranscribeSummary:
             )
             ranking = current_ranking
 
+            TranscribeSummary.store_data_in_file("./assets/policy.json", "w+", ranking) # noqa
+
             return ranking
         except Exception as e:
             print("error while generating the summary")
             print(str(e))
             raise e
+
+    @staticmethod
+    def check_json_file(file_path="./assets/policy.json"):
+        # check if the fact_sheet.json file exists
+        if os.path.exists(file_path):
+            # check if the data with fact_sheets key exists in json file
+            with open(file_path, "r") as f:
+                data = json.load(f)
+                if "policy_rankings" in data:
+                    return (data, True)
+                else:
+                    return ({}, False)
+        else:
+            return ({}, False)
+
+    @staticmethod
+    def store_data_in_file(file_path: str, mode: str, data: any):
+        """
+        Parameters:
+        ----------
+        mode (str): mode to open the file, 'w' for write, 'w+' to first create the
+        file and then write to it if the file does not exists
+        """
+
+        # creating json
+        fact_sheet_json_object = json.dumps(data, indent=4)
+
+        # storing json in file
+        with open(file_path, mode) as jsonFile:
+            jsonFile.write(fact_sheet_json_object)
+            print("data stored successfully")
+            return True
 
     @staticmethod
     def generate_policy_agent(summary):
