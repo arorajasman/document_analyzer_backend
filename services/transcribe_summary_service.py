@@ -87,6 +87,8 @@ class TranscribeSummary:
         return response_data.choices[0].message.content
 
     def get_transcription_with_assembly_ai(self, file_url: str):
+        """Method to get the audio transcription with dirization"""
+
         try:
             aai.settings.api_key = os.getenv("ASSEMBLY_AI_API_KEY")
             config = aai.TranscriptionConfig(speaker_labels=True)
@@ -130,7 +132,7 @@ class TranscribeSummary:
     @staticmethod
     def generate_policy_ranking(summary):
         try:
-            model = LLMService.get_gpt_model(model='gpt-4o-mini')
+            model = LLMService.get_gpt_model(model="gpt-4o-mini")
             # model = LLMService.get_gpt_model()
 
             data, isFilePresent = TranscribeSummary.check_json_file()
@@ -165,7 +167,9 @@ class TranscribeSummary:
             parsed_retrived_docs = []
             ranking = None
 
-            for cycle_number, requirement in enumerate(requirements_response["requirements"][0:5], start=1): # noqa
+            for cycle_number, requirement in enumerate(
+                requirements_response["requirements"][0:5], start=1
+            ):  # noqa
                 temp_parsed_docs = []
 
                 docs = retriver.invoke(requirement)
@@ -185,7 +189,7 @@ class TranscribeSummary:
                 app_strings["policy_ranking"]
             )
 
-            ranking_chain = ranking_prompt | model.with_structured_output( # noqa
+            ranking_chain = ranking_prompt | model.with_structured_output(  # noqa
                 RankingsResponseSchema
             )  # noqa
 
@@ -198,7 +202,9 @@ class TranscribeSummary:
             )
             ranking = current_ranking
 
-            TranscribeSummary.store_data_in_file("./assets/policy.json", "w+", ranking) # noqa
+            TranscribeSummary.store_data_in_file(
+                "./assets/policy.json", "w+", ranking
+            )  # noqa
 
             return ranking
         except Exception as e:
@@ -262,7 +268,9 @@ class TranscribeSummary:
                 llm=model, prompt=prompt, tools=tools
             )  # noqa
 
-            agent_executor = AgentExecutor( agent=agent, tools=tools, verbose=True, return_intermediate_steps=True )  # noqa
+            agent_executor = AgentExecutor(
+                agent=agent, tools=tools, verbose=True, return_intermediate_steps=True
+            )  # noqa
 
             agent_response = agent_executor.invoke({"input": {summary}})
 

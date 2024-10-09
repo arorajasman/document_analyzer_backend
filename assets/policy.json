@@ -1,0 +1,52 @@
+{
+    "policy_rankings": [
+        {
+            "id": "1",
+            "policy_name": "Care Advantage",
+            "rank": "1",
+            "match_score": 90,
+            "reason": "The policy offers comprehensive coverage for major illnesses, post-hospitalization care, and includes features like ambulance services and automatic recharge, matching the customer's requirements closely.",
+            "accuracy": "high",
+            "description": "This health insurance policy provides extensive coverage for hospitalizations and associated medical expenses. It includes benefits for pre and post-hospitalization treatments, ambulance services, and covers a range of major illnesses such as cancer and kidney disease. The policy also features maternity coverage, making it suitable for families. Additionally, it allows for automatic recharges of the sum insured, ensuring continued coverage over time. This policy is designed to cater to diverse healthcare needs, providing peace of mind for policyholders.",
+            "key_features": [
+                "Major Illness Coverage: Covers treatment for critical illnesses like cancer and kidney disease.",
+                "Post-Hospitalization Care: Provides coverage for medical expenses incurred after discharge from the hospital.",
+                "Ambulance Cover: Reimbursement for ambulance services during emergencies.",
+                "Automatic Recharge: The sum insured is automatically recharged upon utilization, ensuring continued coverage.",
+                "Maternity Coverage: Offers benefits specifically for childbirth and related medical expenses."
+            ]
+        },
+        {
+            "id": "2",
+            "policy_name": "Care Freedom",
+            "rank": "2",
+            "match_score": 85,
+            "reason": "This policy includes a wide range of features such as AYUSH treatment coverage, hospitalization, and maternity benefits, aligning well with the customer's needs.",
+            "accuracy": "high",
+            "description": "The Care Freedom policy offers a holistic approach to health insurance, providing extensive coverage for hospitalization and medical expenses. It includes provisions for alternative treatments under AYUSH, ensuring that individuals can access a range of healthcare options. The policy covers maternity expenses, ambulance services, and includes both pre and post-hospitalization care. With a focus on comprehensive healthcare, it is designed to meet the evolving needs of policyholders, offering reassurance and support during medical emergencies.",
+            "key_features": [
+                "AYUSH Treatments: Covers alternative treatment options including Ayurveda and Homeopathy.",
+                "Hospitalization Coverage: Comprehensive coverage for in-patient hospital expenses.",
+                "Maternity Benefits: Financial assistance for childbirth-related medical expenses.",
+                "Ambulance Coverage: Reimbursement for ambulance services during emergencies.",
+                "Post-Hospitalization Care: Coverage for medical expenses incurred after discharge."
+            ]
+        },
+        {
+            "id": "3",
+            "policy_name": "Super Mediclaim",
+            "rank": "3",
+            "match_score": 80,
+            "reason": "The policy includes extensive hospitalization coverage and features for ambulance services and major illness treatments, making it a suitable option for the customer.",
+            "accuracy": "mid",
+            "description": "Super Mediclaim is a robust health insurance policy that focuses on providing substantial coverage for hospitalization and associated medical expenses. The policy includes provisions for ambulance services and covers a variety of major illnesses, ensuring that policyholders have access to necessary medical care. With benefits for post-hospitalization treatments and additional options for coverage, this policy is designed to provide comprehensive support for healthcare needs, addressing both emergencies and ongoing medical requirements.",
+            "key_features": [
+                "Hospitalization Coverage: Extensive coverage for in-patient treatment expenses.",
+                "Ambulance Services: Reimbursement for ambulance transport during medical emergencies.",
+                "Coverage for Major Illnesses: Includes treatments for serious health conditions.",
+                "Post-Hospitalization Coverage: Financial support for treatments following hospital discharge.",
+                "Optional Covers: Various additional covers available to enhance the policy."
+            ]
+        }
+    ]
+}
