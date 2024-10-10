@@ -85,32 +85,50 @@ app_strings = {
                 - **0-29%**: Poor match or no significant relevance.
             - Ensure **no duplicate policies** appear in the final scored list. If duplicates are detected, only the highest match score instance should remain.
 
-            3. **Policy benefits**:
-            - For each policy document, extract and generate the benefits and descriptions based on the policy content provided:
-                - Identify **important elements** of the policy, such as core services, coverage, eligibility, exclusions, and benefits etc as one liner.
-                - Summarize the policy's benefit in a **list format** with at least **5 items**, ensuring the features are **included in the policy content**. 
-                  The features do **not necessarily have to be present in the conversation**.
+            3. **Policy Benefits Extraction**:
+            - For each policy document, extract and generate the benefits and descriptions based on the provided policy content:
+                - Identify **key elements** of the policy, such as core services, coverage, eligibility, exclusions, and benefits, and summarize them in **one line**.
+                - Provide a **detailed list of benefits** included in the policy.
+                - Summarize the policy's benefits in a **list format** with at least **5 items**, ensuring that the listed features are present in the policy content. These features do **not need to be part of the conversation**, but should be in the policy itself.
+                - Ensure that **no policy benefit is omitted**.
+                - Always return the benefits in the following format:
+                - **[benefit]: [short summary of the benefit]**
                 
-                - Make sure to include all the policy benefits that you can find from the policy content
-                - Always return the policy benefits (key_feature) in the given example format. 
-                    Example: [benefit]:[short summary of the benefit]
-                    "Maternity Coverage: Offers reimbursement or cashless facilities for childbirth-related medical expenses, 
-                   with a 24-month waiting period and specific eligibility and exclusion criteria."
+                Example:
+                - Maternity Coverage: Offers reimbursement or cashless facilities for childbirth-related medical expenses, with a 24-month waiting period and specific eligibility and exclusion criteria.
 
+        
             4. **Policy Description**:
-            - Using the give policy content generate an informative description of the policy. 
-            - Make sure not to combine other policies description.
+            - Using the provided policy content, generate an informative and concise description of the policy.
+            - Ensure that the description pertains **only to the current policy** and does not combine details from other policies.
+            - The description should contain **at least 70 words** and cover essential aspects such as coverage, services, benefits, and any other key elements.
+            Example:
+            This comprehensive health insurance policy offers both individual and family plans, providing extensive coverage for a variety of medical services. With affordable monthly premiums, the policy includes hospitalization, outpatient care, prescription drugs, and preventive services. It features manageable deductibles and copayments, along with coinsurance to ensure shared costs. Policyholders have access to a nationwide network of healthcare providers, ensuring quality care wherever they are. The policy also covers emergency services, mental health care, and regular preventive check-ups to promote overall well-being.
+
 
             5. **Handling Existing Scores**:
-            - If an existing match score is provided, it must be used as the basis for re-scoring. Re-assess all previously scored policies alongside any new policy documents and adjust the scores accordingly.
+            - If an existing match score is provided, it must be used as the basis for re-scoring.
+            - Re-assess all previously scored policies alongside any new policy documents and adjust the scores accordingly.
+            - You will be given access to a specific number of cycles for running this prompt. For each cycle:
+                - Ensure to adjust the scoring and ranking of the policies based on the newly assessed scores.
+                - If any new policy documents are added, incorporate them into the re-scoring process to ensure an accurate and updated ranking.
+
+            Example Cycle Execution:
+            - Cycle 1: Re-score existing policies and add new policies if applicable.
+            - Cycle 2: Re-evaluate scores based on any additional changes and update the rankings accordingly.
+
 
             6. **Edge Case**:
             - If no policies match the conversation or their relevance is too low, return `No matching policies found`.
 
             7. **Output Structure**:
-            - Return a final list of **scored policies**, ensuring that they are unique, sorted by **match score**, and include the policy name, match score (in percentage), and any necessary remarks on the rationale for the scoring.
-            - Ensure that the final response contains at least **three policies**.
-
+            - Ensure that all policies in the list are **unique**.
+            - Sort the policies by **match score** in descending order.
+            - Each entry in the list should include:
+                - **Policy Name**
+                - **Match Score** (in percentage)
+                - **Remarks** explaining the rationale for the scoring.
+                - **Key features** - a list of all the benefits covered by the policy.
 
         Conversation: 
         ```json

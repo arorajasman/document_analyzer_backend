@@ -128,8 +128,8 @@ class TranscribeSummary:
     @staticmethod
     def generate_policy_ranking(summary):
         try:
-            # model = LLMService.get_gpt_model(model='gpt-4o-mini')
-            model = LLMService.get_gpt_model()
+            model = LLMService.get_gpt_model(model='gpt-4o-mini')
+            # model = LLMService.get_gpt_model()
 
             # user requirements chain
             requirements_prompt = ChatPromptTemplate.from_template(
@@ -151,25 +151,18 @@ class TranscribeSummary:
             ]  # noqa
 
             retriver = vector_store_service.get_vector_store().as_retriever(
-                search_kwargs={"k": 12}
-            )
-
-            description_retriver = vector_store_service.get_vector_store().as_retriever(  # noqa
                 search_kwargs={"k": 8}
             )
-            description_docs = description_retriver.invoke("Retrieve policy description") # noqa
 
             parsed_retrived_docs = []
             ranking = None
 
-            for requirement in requirements_response["requirements"]:
+            for cycle_number, requirement in enumerate(requirements_response["requirements"][0:5], start=1): # noqa
                 temp_parsed_docs = []
 
                 docs = retriver.invoke(requirement)
 
-                combined_docs = docs + description_docs
-
-                for i, doc in enumerate(combined_docs):
+                for i, doc in enumerate(docs):
                     temp_parsed_docs.append(
                         {
                             "content": doc.page_content,
@@ -178,24 +171,24 @@ class TranscribeSummary:
                     )
                 parsed_retrived_docs.append([i for i in temp_parsed_docs])
 
-                # ranking chain
-                ranking_prompt = ChatPromptTemplate.from_template(
-                    # app_strings["generate_ranking_prompt"]
-                    app_strings["policy_ranking"]
-                )
+            # ranking chain
+            ranking_prompt = ChatPromptTemplate.from_template(
+                # app_strings["generate_ranking_prompt"]
+                app_strings["policy_ranking"]
+            )
 
-                ranking_chain = ranking_prompt | model.with_structured_output( # noqa
-                    RankingsResponseSchema
-                )  # noqa
+            ranking_chain = ranking_prompt | model.with_structured_output( # noqa
+                RankingsResponseSchema
+            )  # noqa
 
-                current_ranking = ranking_chain.invoke(
-                    {
-                        "conversation": summary,
-                        "policy_documents": str(temp_parsed_docs),
-                        "existing_policy_ranking": str(ranking)
-                    }  # noqa
-                )
-                ranking = current_ranking
+            current_ranking = ranking_chain.invoke(
+                {
+                    "conversation": summary,
+                    "policy_documents": str(parsed_retrived_docs),
+                    "existing_policy_ranking": str(ranking),
+                }  # noqa
+            )
+            ranking = current_ranking
 
             return ranking
         except Exception as e:
