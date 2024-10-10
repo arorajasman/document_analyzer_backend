@@ -129,8 +129,6 @@ app_strings = {
                 - **Match Score** (in percentage)
                 - **Remarks** explaining the rationale for the scoring.
                 - **Key features** - a list of all the benefits covered by the policy.
-            - The final cycle should have **atleast 3** policies.
-
 
         Conversation: 
         ```json
