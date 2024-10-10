@@ -1,0 +1,22 @@
+version: "3.8"
+
+services:
+  # service for postgres vector db
+  vector-db:
+    hostname: db
+    image: pgvector/pgvector:pg16
+    ports:
+      - 5434:5432
+    restart: always
+    environment:
+      - POSTGRES_DB=document_analyzer_db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+    volumes:
+      - ./data:/vector-db-data
+
+  # service for PDF chunking
+  pdf-chunking:
+    image: ghcr.io/nlmatics/nlm-ingestor:latest
+    ports:
+      - 5010:5001
