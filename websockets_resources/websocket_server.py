@@ -10,18 +10,10 @@ class WebSocketServer:
 
         socketio.on_event(
             "offer",
-            handler=self.handle_offer,
+            self.handle_offer,
         )
 
-    def run(self, host="0.0.0.0", port=5000, debug=True):
-        self.socketio.run(
-            app=self.socketio.server,
-            host=host,
-            port=port,
-            debug=debug,
-        )
-
-    def handle_offer(data):
+    def handle_offer(self, data):
         print("got the event hit")
         print(data)
         emit("offer_handler", data, broadcast=True)
