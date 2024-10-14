@@ -9,7 +9,7 @@ from resources.transcribe import bp as transcribe_bp
 from resources.phone_call_resource import phone_call_blueprint
 from resources.documents_resource import documents_blueprint
 
-from services.audio_streaming_service import AudioStreamingService
+# from services.audio_streaming_service import AudioStreamingService
 from utils.app_config import (
     get_app_config,
     get_injector_instance,
@@ -24,7 +24,7 @@ load_dotenv()
 CORS(app)
 
 # instannce of audio service
-audio_streaming_service = get_injector_instance().get(AudioStreamingService)
+# audio_streaming_service = get_injector_instance().get(AudioStreamingService)
 
 # database initialization
 database_service = VectorStoreService()
@@ -39,9 +39,6 @@ api.register_blueprint(phone_call_blueprint)
 api.register_blueprint(documents_blueprint)
 
 
-if __name__ == "__main__":
-    # starting the web socket server
-    web_socket_server: WebSocketServer = get_injector_instance().get(
-        WebSocketServer
-    )  # noqa
-    web_socket_server.run()
+web_socket_server: WebSocketServer = get_injector_instance().get(
+    WebSocketServer
+)  # noqa
