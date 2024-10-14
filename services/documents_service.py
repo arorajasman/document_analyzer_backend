@@ -4,6 +4,7 @@ import uuid
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_core.documents import Document
+from llmsherpa.readers import LayoutPDFReader
 
 
 class DocumentsService:
@@ -25,11 +26,12 @@ class DocumentsService:
     def load_pdf_docs(self, path: str, isLocal: bool):
         """Method to load pdf documents"""
 
-        if isLocal:
-            # loading the pdf file
-            return self.load_and_split_pdf_doc(path)
-        else:
-            pass
+        # if isLocal:
+        #     # loading the pdf file
+        #     return self.load_and_split_pdf_doc(path)
+        # else:
+        #     pass
+        return self.load_and_split_pdf_llmsherpa(path)
 
     def load_and_split_pdf_doc(self, path: str):
         """Method for loading a single file"""
@@ -52,3 +54,23 @@ class DocumentsService:
             page.metadata["doc_id"] = str(uuid.uuid4())
 
         return pages
+
+    def load_and_split_pdf_llmsherpa(self, path):
+        """
+            Method to load pdf using llmsherpa
+            ref: https://github.com/nlmatics/llmsherpa
+        """
+        llmsherpa_api_url = "http://localhost:5010/api/parseDocument?renderFormat=all" # noqa
+        pdf_reader = LayoutPDFReader(llmsherpa_api_url)
+        parsed_pdf = pdf_reader.read_pdf(path_or_url=path)
+        documents = []
+        document_id = str(uuid.uuid4())
+        for chunk in parsed_pdf.chunks():
+            documents.append(Document(
+                page_content=chunk.to_context_text(),
+                metadata={
+                    "source": path,
+                    "document_id": document_id
+                }
+            ))
+        return documents
