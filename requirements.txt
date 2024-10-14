@@ -12,6 +12,7 @@ asteroid-filterbanks==0.4.0
 attrs==24.2.0
 audioread==3.0.1
 av==12.3.0
+bidict==0.23.1
 blinker==1.8.2
 certifi==2024.8.30
 cffi==1.17.1
@@ -20,6 +21,7 @@ click==8.1.7
 coloredlogs==15.0.1
 colorlog==6.8.2
 contourpy==1.3.0
+cryptography==43.0.1
 ctranslate2==4.4.0
 cycler==0.12.1
 dataclasses-json==0.6.7
@@ -31,7 +33,9 @@ faster-whisper==1.0.3
 filelock==3.16.0
 Flask==3.0.3
 Flask-Cors==5.0.0
+Flask-Injector==0.15.0
 flask-smorest==0.44.0
+Flask-SocketIO==5.4.1
 flatbuffers==24.3.25
 fonttools==4.53.1
 frozenlist==1.4.1
@@ -43,6 +47,7 @@ huggingface-hub==0.24.6
 humanfriendly==10.0
 HyperPyYAML==1.2.2
 idna==3.8
+injector==0.22.0
 itsdangerous==2.2.0
 Jinja2==3.1.4
 jiter==0.5.0
@@ -99,6 +104,7 @@ pyannote.database==5.1.0
 pyannote.metrics==3.2.1
 pyannote.pipeline==3.0.1
 pycparser==2.22
+pycryptodome==3.15.0
 pydantic==2.9.1
 pydantic_core==2.23.3
 Pygments==2.18.0
@@ -107,6 +113,8 @@ pyparsing==3.1.4
 pypdf==4.3.1
 python-dateutil==2.9.0.post0
 python-dotenv==1.0.1
+python-engineio==4.9.1
+python-socketio==5.11.4
 pytorch-lightning==2.4.0
 pytorch-metric-learning==2.6.0
 pytz==2024.2
@@ -122,6 +130,7 @@ semver==3.0.2
 sentencepiece==0.2.0
 setuptools==74.1.2
 shellingham==1.5.4
+simple-websocket==1.0.0
 six==1.16.0
 sniffio==1.3.1
 sortedcontainers==2.4.0
@@ -152,4 +161,5 @@ uuid==1.30
 webargs==8.4.0
 websockets==13.0.1
 Werkzeug==3.0.4
+wsproto==1.2.0
 yarl==1.9.11

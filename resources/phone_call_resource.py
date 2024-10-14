@@ -104,7 +104,9 @@ class PolicyRanking(MethodView):
             )  # noqa
 
             return (
-                jsonify({"ranked_policies": ranking_response["policy_rankings"]}), # noqa
+                jsonify(
+                    {"ranked_policies": ranking_response["policy_rankings"]}
+                ),  # noqa
                 HTTPStatus.OK,
             )
         except Exception as e:
@@ -113,18 +115,16 @@ class PolicyRanking(MethodView):
 
 @phone_call_blueprint.route("/generate_policies_agent")
 class PolicyRankingAgent(MethodView):
-    """Resource to get the policy ranking based on call summary using langchain agent""" # noqa
+    """Resource to get the policy ranking based on call summary using langchain agent"""  # noqa
 
     @phone_call_blueprint.arguments(PolicyRankingSchema)
     def post(self, prompt_data):
-        """Method to get the policy ranking based on call summary using langchain agent""" # noqa
+        """Method to get the policy ranking based on call summary using langchain agent"""  # noqa
 
         try:
             summary = prompt_data["summary"]
 
-            (agent_response) = TranscribeSummary.generate_policy_agent(
-                summary
-            )  # noqa
+            (agent_response) = TranscribeSummary.generate_policy_agent(summary)  # noqa
 
             return (
                 jsonify({"ranked_policies": agent_response}),

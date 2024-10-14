@@ -1,4 +1,5 @@
 import os
+from injector import inject
 from openai import OpenAI
 import assemblyai as aai
 from flask_app import app
@@ -27,6 +28,10 @@ from schemas.llm_schemas.rankings_response_schema import RankingsResponseSchema
 
 
 class TranscribeSummary:
+
+    @inject
+    def __init__(self) -> None:
+        pass
 
     @staticmethod
     def generate_transcription(audio_file: str):
@@ -154,10 +159,14 @@ class TranscribeSummary:
                 search_kwargs={"k": 12}
             )
 
-            description_retriver = vector_store_service.get_vector_store().as_retriever(  # noqa
-                search_kwargs={"k": 8}
+            description_retriver = (
+                vector_store_service.get_vector_store().as_retriever(  # noqa
+                    search_kwargs={"k": 8}
+                )
             )
-            description_docs = description_retriver.invoke("Retrieve policy description") # noqa
+            description_docs = description_retriver.invoke(
+                "Retrieve policy description"
+            )  # noqa
 
             parsed_retrived_docs = []
             ranking = None
@@ -184,7 +193,7 @@ class TranscribeSummary:
                     app_strings["policy_ranking"]
                 )
 
-                ranking_chain = ranking_prompt | model.with_structured_output( # noqa
+                ranking_chain = ranking_prompt | model.with_structured_output(  # noqa
                     RankingsResponseSchema
                 )  # noqa
 
@@ -192,7 +201,7 @@ class TranscribeSummary:
                     {
                         "conversation": summary,
                         "policy_documents": str(temp_parsed_docs),
-                        "existing_policy_ranking": str(ranking)
+                        "existing_policy_ranking": str(ranking),
                     }  # noqa
                 )
                 ranking = current_ranking
@@ -227,7 +236,12 @@ class TranscribeSummary:
                 llm=model, prompt=prompt, tools=tools
             )  # noqa
 
-            agent_executor = AgentExecutor( agent=agent, tools=tools, verbose=True, return_intermediate_steps=True )  # noqa
+            agent_executor = AgentExecutor(
+                agent=agent,
+                tools=tools,
+                verbose=True,
+                return_intermediate_steps=True,
+            )  # noqa
 
             agent_response = agent_executor.invoke({"input": {summary}})
 
