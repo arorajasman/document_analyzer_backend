@@ -15,15 +15,15 @@ class WebRTCSignallingServer:
         # code to register connect event for connecting the user to the
         # signalling server
         socketio.on_event(
-            "connection",
-            # namespace=self.signalling_namespace,
+            "connect",
+            namespace=self.signalling_namespace,
             handler=self.__handle_connection_event,
         )
 
         # code to register the event to make a new call
         socketio.on_event(
             "make_call",
-            # namespace=self.signalling_namespace,
+            namespace=self.signalling_namespace,
             handler=self.__handle_make_call_event,
         )
 
@@ -44,7 +44,7 @@ class WebRTCSignallingServer:
     def __handle_connection_event(self, data):
         """Method to handle the connection event"""
 
-        caller_id = request.args.get("caller_Id")
+        caller_id = request.args.get("callerId")
         if caller_id:
             # request.sid = caller_id  # attach callerId as user
             print(f"{caller_id} Connected")
