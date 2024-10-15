@@ -15,16 +15,15 @@ from utils.app_config import (
     get_injector_instance,
 )  # noqa
 from services.vectorstore_service import VectorStoreService
-from websockets_resources.websocket_server import WebSocketServer
+from websockets_resources.web_rtc_signalling_server import (
+    WebRTCSignallingServer,
+)  # noqa
 
 # loading .env file
 load_dotenv()
 
 # adding CORS
 CORS(app)
-
-# instannce of audio service
-# audio_streaming_service = get_injector_instance().get(AudioStreamingService)
 
 # database initialization
 database_service = VectorStoreService()
@@ -39,6 +38,6 @@ api.register_blueprint(phone_call_blueprint)
 api.register_blueprint(documents_blueprint)
 
 
-web_socket_server: WebSocketServer = get_injector_instance().get(
-    WebSocketServer
+web_socket_server: WebRTCSignallingServer = get_injector_instance().get(
+    WebRTCSignallingServer
 )  # noqa

@@ -3,11 +3,12 @@ from flask_injector import FlaskInjector
 from flask_socketio import SocketIO
 from injector import Injector, singleton, Binder
 
-from services.audio_streaming_service import AudioStreamingService
 from services.transcribe_summary_service import TranscribeSummary
 from services.vectorstore_service import VectorStoreService
 from flask_app import socketio, app
-from websockets_resources.websocket_server import WebSocketServer
+from websockets_resources.web_rtc_signalling_server import (
+    WebRTCSignallingServer,
+)  # noqa
 
 
 def configure_dependency_container(binder: Binder):
@@ -15,12 +16,11 @@ def configure_dependency_container(binder: Binder):
 
     # configuring the dependencies
     binder.bind(SocketIO, to=socketio, scope=singleton)
-    binder.bind(WebSocketServer, to=WebSocketServer, scope=singleton)
     binder.bind(
-        AudioStreamingService,
-        to=AudioStreamingService,
+        WebRTCSignallingServer,
+        to=WebRTCSignallingServer,
         scope=singleton,
-    )
+    ),
     binder.bind(TranscribeSummary, to=TranscribeSummary, scope=singleton)
 
 
