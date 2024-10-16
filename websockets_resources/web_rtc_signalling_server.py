@@ -2,13 +2,13 @@ from flask import request
 from flask_socketio import SocketIO, disconnect, emit, join_room
 from injector import inject
 
+from websockets_resources.websocket_resource import WebSocketResource
 
-class WebRTCSignallingServer:
+
+class WebRTCSignallingServer(WebSocketResource):
     """Class to create the signalling server for the webRTC"""
 
-    # property to get the namespace for the websocket
-    __signalling_namespace__ = "/signalling-server"
-
+    # properties to get the socket details
     __socket_details__ = {}
     __room_id__ = ""
     __room_name__ = "Web_RTC_Room"
@@ -21,28 +21,28 @@ class WebRTCSignallingServer:
         # signalling server
         socketio.on_event(
             "connect",
-            namespace=self.__signalling_namespace__,
+            namespace=self.signalling_server_namespace,
             handler=self.__handle_connection_event,
         )
 
         # code to register the event to make a new call
         socketio.on_event(
             "make_call",
-            namespace=self.__signalling_namespace__,
+            namespace=self.signalling_server_namespace,
             handler=self.__handle_make_call_event,
         )
 
         # code to register the answer_call event
         socketio.on_event(
             "answer_call",
-            namespace=self.__signalling_namespace__,
+            namespace=self.signalling_server_namespace,
             handler=self.__handle_answer_call_event,
         )
 
         # code to register the ice_candidate event
         socketio.on_event(
             "ice_candidate",
-            namespace=self.__signalling_namespace__,
+            namespace=self.signalling_server_namespace,
             handler=self.__handle_ice_candidate_event,
         )
 
@@ -58,7 +58,7 @@ class WebRTCSignallingServer:
             join_room(
                 self.__room_name__,
                 sid=request.sid,
-                namespace=self.__signalling_namespace__,
+                namespace=self.signalling_server_namespace,
             )
         else:
             # Disconnect if callerId is not present

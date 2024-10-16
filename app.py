@@ -16,6 +16,9 @@ from utils.app_config import (
 from services.vectorstore_service import VectorStoreService
 from websockets_resources.web_rtc_signalling_server import (
     WebRTCSignallingServer,
+)
+from websockets_resources.web_socket_audio_resource import (
+    WebSocketAudioResource,
 )  # noqa
 
 # loading .env file
@@ -30,6 +33,7 @@ database_service = VectorStoreService()
 # getting app config
 config = get_app_config(app, database_service)
 
+# Registering the api endpoint resources
 api = Api(app)
 api.register_blueprint(twilio_blueprint)
 api.register_blueprint(transcribe_bp)
@@ -37,6 +41,6 @@ api.register_blueprint(phone_call_blueprint)
 api.register_blueprint(documents_blueprint)
 
 
-web_socket_server: WebRTCSignallingServer = get_injector_instance().get(
-    WebRTCSignallingServer
-)  # noqa
+# Registering the web sockets
+web_socket_server = get_injector_instance().get(WebRTCSignallingServer)
+web_socket_audio_resource = get_injector_instance().get(WebSocketAudioResource)

@@ -8,6 +8,9 @@ from services.vectorstore_service import VectorStoreService
 from flask_app import socketio, app
 from websockets_resources.web_rtc_signalling_server import (
     WebRTCSignallingServer,
+)
+from websockets_resources.web_socket_audio_resource import (
+    WebSocketAudioResource,
 )  # noqa
 
 
@@ -21,10 +24,15 @@ def configure_dependency_container(binder: Binder):
         to=WebRTCSignallingServer,
         scope=singleton,
     ),
+    binder.bind(
+        WebSocketAudioResource,
+        to=WebSocketAudioResource,
+        scope=singleton,
+    )
     binder.bind(TranscribeSummary, to=TranscribeSummary, scope=singleton)
 
 
-def get_injector_instance() -> FlaskInjector:
+def get_injector_instance() -> Injector:
     """Method to get the injector instance"""
 
     flask_injector = FlaskInjector(
